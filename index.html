@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Shul AI - Your Cute AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">🤖 Shul AI</h1>
+                <p class="subtitle">Tera Cute AI Assistant - Images, Videos, Answers!</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="chat">💬 Chat</button>
+                <button class="tab-btn" data-tab="image">🖼️ Image</button>
+                <button class="tab-btn" data-tab="video">🎥 Video</button>
+                <button class="tab-btn" data-tab="editor">✂️ Editor</button>
+            </div>
+
+            <!-- Chat Tab -->
+            <div id="chat" class="tab-content active">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <p>Namaste! Main Shul hoon! 👋</p>
+                                <p>Mujhe kuch bhi poocho - main jawab dunga!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Kuch bhi poocho... 🤔" class="chat-input">
+                        <button onclick="sendMessage()" class="send-btn">Send ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Generator Tab -->
+            <div id="image" class="tab-content">
+                <div class="feature-container">
+                    <h2>🖼️ Image Generator</h2>
+                    <div class="input-group">
+                        <input type="text" id="imagePrompt" placeholder="Describe your image... (e.g., 'A cute cat wearing sunglasses')" class="feature-input">
+                        <button onclick="generateImage()" class="feature-btn">Generate Image ✨</button>
+                    </div>
+                    <div id="imageResult" class="result-area">
+                        <p class="placeholder">Aapka generated image yahan dikhega 🎨</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Generator Tab -->
+            <div id="video" class="tab-content">
+                <div class="feature-container">
+                    <h2>🎥 Video Generator</h2>
+                    <div class="input-group">
+                        <input type="text" id="videoPrompt" placeholder="Describe your video... (e.g., 'A dancing robot')" class="feature-input">
+                        <select id="videoDuration" class="feature-input">
+                            <option value="5">5 seconds</option>
+                            <option value="10">10 seconds</option>
+                            <option value="15">15 seconds</option>
+                        </select>
+                        <button onclick="generateVideo()" class="feature-btn">Generate Video 🎬</button>
+                    </div>
+                    <div id="videoResult" class="result-area">
+                        <p class="placeholder">Aapka generated video yahan dikhega 🎞️</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Editor Tab -->
+            <div id="editor" class="tab-content">
+                <div class="feature-container">
+                    <h2>✂️ Video Editor</h2>
+                    <div class="input-group">
+                        <input type="file" id="videoFile" accept="video/*" class="feature-input">
+                        <select id="editorOption" class="feature-input">
+                            <option value="trim">Trim Video</option>
+                            <option value="speed">Change Speed</option>
+                            <option value="crop">Crop Video</option>
+                            <option value="filter">Add Filter</option>
+                        </select>
+                        <button onclick="editVideo()" class="feature-btn">Edit Video 🎞️</button>
+                    </div>
+                    <div id="editorResult" class="result-area">
+                        <p class="placeholder">Aapka edited video yahan download hoga 📥</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with ❤️ by <strong>Adhyan Sarthak</strong> | Powered by Shul AI 🚀</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

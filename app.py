@@ -1,125 +1,157 @@
-import streamlit as st
-import wikipedia
+from flask import Flask, render_template, request, jsonify
+import os
 from datetime import datetime
-from openai import OpenAI
 
-# === CONFIG ===
-OWNER_NAME = "Adhyan Sarthak"
-BOT_NAME = "Shul"
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'shul-ai-secret-key-2024'
 
-# Streamlit Sidebar for Security
-st.sidebar.title("Shul Settings")
-user_api_key = st.sidebar.text_input("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", type="password")
+# Store for messages and generated content
+generated_content = []
 
-st.title(f"🤖 {BOT_NAME} AI")
-st.write(f"Created by {OWNER_NAME}")
+@app.route('/')
+def index():
+    """Home page"""
+    return render_template('index.html')
 
-if not user_api_key:
-    st.warning("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")
-else:
-    client = OpenAI(api_key=user_api_key)
-
-    def get_wikipedia_info(query):
-        try: return wikipedia.summary(query, sentences=2)
-        except: return "Sorry sir, I couldn't find info about that."
-
-    def ask_openai(prompt):
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": f"You are {BOT_NAME}, created by {OWNER_NAME}."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Error: {e}"
-
-    def shul_brain(user_input):
-        user_input_lower = user_input.lower()
-        # Aapka saara "if/else" logic yahan paste karein...
-        if "who is your sir" in user_input_lower:
-            return "My sir is Adhyan Sarthak."
-         if "who made you" in user_input_lower:
-        return f"I was made by santosh singh son adhyan sarthak."
-    
-    if "how old is adhyan sarthak" in user_input_lower:
-        return f"he was 12 year old in offical card but in real age of adhyan sarthak 13."
-    
-    if "which date adhyan sarthak birthday" in user_input_lower:
-        return f"the birthday of adhyan sarthak is 14 march 2012 the special date of my sir adhyan sathak is mathematic day."
-    
-    if "kem chho" in user_input_lower:
-        return f"majma sir."
-    
-    
-    if "who is best friend of adhyan sarthak" in user_input_lower:
-        return f"the best freind of adhyan sarthak is anand raj tomar."
-    
-    if "which colour is Favorite of adhyan sarthak" in user_input_lower:
-        return f"the favorite colour of adhyan sarthak is red."
-    
-    if "which subject is Favorite of adhyan sarthak" in user_input_lower:
-        return f"the favorite subject of adhyan sarthak is computer / math/ science."
-
-    if "hi" in user_input_lower:
-        return f"hello boss how are you, how can i help you."
-
-    if "hello" in user_input_lower:
-        return f"hello boss how are you, how can i help you."
-  
-    if "hye" in user_input_lower:
-        return f"hello boss how are you, how can i help you."
-    
-    if "i am fine" in user_input_lower:
-        return f"oh very nice how today is going with you."
-
-    if "wich is best god for adhyan sathak" in user_input_lower:
-        return f"the best god of adhyan sarthak is lord shiva."
- 
-    if "who is your sir" in user_input_lower:
-        return f"my sir is adhyan sarthak."
-    
-    if "what is dream of adhyan sarthak" in user_input_lower:
-        return f"the dream of adhyan sarthak is making a big space company who's name is amisro with his partner anand raj tomar."
-
-    if "what is email adress of adhyan sarthak" in user_input_lower:
-        return f"the email adress of adhyan sarthak is adhyansarthak@gmail.com and adhyansarthak@zohomail.in."
-    
-   
-    if "who is father of adhyan sarthak" in user_input_lower:
-        return f"the father of adhyan sarthak is santosh kumar singh."
-    
-    if "who is mother of adhyan sarthak" in user_input_lower:
-        return f"the mother of adhyan sarthak is kunti devi."
-    
-    if "who is sister of adhyan sarthak" in user_input_lower:
-        return f"the sister of adhyan sarthak is ananya anand and sweta singh rajput."
-
-    if "who is adhyan sarthak" in user_input_lower:
-        return f"adhyan sarthak is a good boy he read in class seven in doon public school he made many ai like inxon, pikachu, shul."
-
-        elif "date" in user_input_lower or "time" in user_input_lower:
-            return datetime.now().strftime('%A, %d %B %Y, %I:%M %p')
-        else:
-            return ask_openai(user_input)
-
-    # Chat Interface
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    if prompt := st.chat_input("Ask Shul something..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        response = shul_brain(prompt)
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Chat endpoint - handles user messages"""
+    try:
+        data = request.json
+        message = data.get('message', '').strip()
         
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        with st.chat_message("assistant"):
-            st.markdown(response)
+        if not message:
+            return jsonify({'error': 'Empty message'}), 400
+        
+        # Get response from Shul AI
+        response = get_shul_response(message)
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'response': response,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate-image', methods=['POST'])
+def generate_image():
+    """Generate image from text prompt"""
+    try:
+        data = request.json
+        prompt = data.get('prompt', '').strip()
+        
+        if not prompt:
+            return jsonify({'error': 'Empty prompt'}), 400
+        
+        # In production, use Stable Diffusion or OpenAI API
+        # For now, return mock response
+        image_url = f"https://via.placeholder.com/512x512?text={prompt[:20]}"
+        
+        generated_content.append({
+            'type': 'image',
+            'prompt': prompt,
+            'url': image_url,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        return jsonify({
+            'success': True,
+            'image_url': image_url,
+            'prompt': prompt
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate-video', methods=['POST'])
+def generate_video():
+    """Generate video from text prompt"""
+    try:
+        data = request.json
+        prompt = data.get('prompt', '').strip()
+        duration = data.get('duration', 5)
+        
+        if not prompt:
+            return jsonify({'error': 'Empty prompt'}), 400
+        
+        # In production, use video generation model
+        # For now, return mock response
+        video_url = f"https://via.placeholder.com/512x512?text=Video:{prompt[:15]}"
+        
+        generated_content.append({
+            'type': 'video',
+            'prompt': prompt,
+            'duration': duration,
+            'url': video_url,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        return jsonify({
+            'success': True,
+            'video_url': video_url,
+            'prompt': prompt,
+            'duration': duration
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/edit-video', methods=['POST'])
+def edit_video():
+    """Edit video"""
+    try:
+        if 'video' not in request.files:
+            return jsonify({'error': 'No video file provided'}), 400
+        
+        video_file = request.files['video']
+        edit_option = request.form.get('option', 'trim')
+        
+        if video_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        # In production, process video with FFmpeg
+        # For now, return mock response
+        edited_video_url = f"https://via.placeholder.com/512x512?text=Edited:{edit_option}"
+        
+        return jsonify({
+            'success': True,
+            'edited_video_url': edited_video_url,
+            'option': edit_option,
+            'original_file': video_file.filename
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/content-history', methods=['GET'])
+def content_history():
+    """Get history of generated content"""
+    return jsonify({
+        'success': True,
+        'content': generated_content[-10:]  # Last 10 items
+    })
+
+def get_shul_response(message):
+    """Generate Shul AI response to user message"""
+    lower_msg = message.lower()
+    
+    responses = {
+        'hello': 'Namaste! 👋 Main Shul hoon, tera cute AI assistant!',
+        'hi': 'Hi there! 😊 Kaise ho?',
+        'thanks': 'Welcome! 🙏 Mujhe help karna bilkul pasand hai!',
+        'who are you': 'Main Shul hoon! 🤖 Ek cute AI assistant jo images, videos banata hoon aur sawalon ke jawab deta hoon!',
+        'image': 'Image generator ke liye "Image" tab par click karo! 🖼️',
+        'video': 'Video generator ke liye "Video" tab par click karo! 🎥',
+        'edit': 'Video editor ke liye "Editor" tab par click karo! ✂️',
+        'help': 'Main kya kar sakta hoon:\n📸 Images generate karna\n🎬 Videos banaa sakte ho\n✏️ Videos edit kar sakta hoon\n💬 Tere sawalon ke jawab de sakta hoon!',
+        'what': 'Interesting question! 🤔 Aur bataao!',
+        'how': 'Bilkul! Main tere sawaal ke jawab de sakta hoon!'
+    }
+    
+    for key, response in responses.items():
+        if key in lower_msg:
+            return response
+    
+    return 'Interesting! 🤔 Aap kya puchna chahte ho? Mujhe batao - main help kar sakta hoon! 😊'
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
